@@ -2,7 +2,7 @@
 
 # MySQL Backup to Cloudflare R2
 
-A Docker container that backs up MySQL databases to Cloudflare R2 storage using rclone.
+A Docker container that provides automated MySQL database backups to Cloudflare R2 storage using rclone. This solution offers secure, scheduled backups with compression, retention policy management, and multi-database support. Perfect for maintaining reliable database backups in a cloud environment with minimal configuration required.
 
 ## Features
 
