@@ -1,4 +1,6 @@
-# cloudflare-r2-rclone-mysql-backup
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/wYvGYt?referralCode=6bSGmj)
+
+# MySQL Backup to Cloudflare R2
 
 A Docker container that backs up MySQL databases to Cloudflare R2 storage using rclone.
 

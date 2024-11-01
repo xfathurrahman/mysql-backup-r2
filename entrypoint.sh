@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ -z "$MYSQL_HOST" ] ||  [ -z "$MYSQL_PORT" ] ||[ -z "$MYSQL_USER" ] || [ -z "$MYSQL_PASSWORD" ] || [ -z "$MYSQL_DATABASE" ] || [ -z "$R2_ACCESS_KEY_ID" ] || [ -z "$R2_SECRET_ACCESS_KEY" ] || [ -z "$R2_BUCKET" ] || [ -z "$R2_S3_ENDPOINT" ]; then
+if [ -z "$MYSQL_HOST" ] ||  [ -z "$MYSQL_PORT" ] ||[ -z "$MYSQL_USER" ] || [ -z "$MYSQL_PASSWORD" ] || [ -z "$MYSQL_DB_NAME" ] || [ -z "$R2_ACCESS_KEY_ID" ] || [ -z "$R2_SECRET_ACCESS_KEY" ] || [ -z "$R2_BUCKET" ] || [ -z "$R2_S3_ENDPOINT" ]; then
     echo "Missing required environment variables."
     exit 1
 fi
@@ -18,7 +18,7 @@ password=$MYSQL_PASSWORD
 EOF
 
 # Creates Gzip MySQL dump file
-mysqldump --defaults-file="$MYSQL_CNF" "$MYSQL_DATABASE" | gzip > $DUMP_FILE
+mysqldump --defaults-file="$MYSQL_CNF" "$MYSQL_DB_NAME" | gzip > $DUMP_FILE
 
 # Removes temporary config file
 rm "$MYSQL_CNF"
