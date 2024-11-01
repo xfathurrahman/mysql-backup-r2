@@ -1,8 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM rclone/rclone:1.68.1 as rclone
-
-COPY --from=rclone /usr/local/bin/rclone /usr/local/bin/rclone
+FROM rclone/rclone:1.68.1
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
