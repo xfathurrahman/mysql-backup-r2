@@ -52,7 +52,7 @@ echo "$CONFIG_CONTENT" > ~/.config/rclone/rclone.conf
 # Check if the file was created successfully
 if [ -f ~/.config/rclone/rclone.conf ]; then
     echo "rclone.conf created successfully."
-else 
+else
     echo "Error: Failed to create rclone.conf"
     exit 1
 fi
