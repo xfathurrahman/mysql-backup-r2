@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 if [ -z "$MYSQL_HOST" ] ||  [ -z "$MYSQL_PORT" ] ||[ -z "$MYSQL_USER" ] || [ -z "$MYSQL_PASSWORD" ] || [ -z "$MYSQL_DB_NAME" ] || [ -z "$R2_ACCESS_KEY_ID" ] || [ -z "$R2_SECRET_ACCESS_KEY" ] || [ -z "$R2_BUCKET" ] || [ -z "$R2_S3_ENDPOINT" ]; then
     echo "Missing required environment variables."
     exit 1
@@ -13,12 +15,27 @@ MYSQL_CNF=$(mktemp)
 cat > "$MYSQL_CNF" << EOF
 [client]
 host=$MYSQL_HOST
+port=$MYSQL_PORT
 user=$MYSQL_USER
 password=$MYSQL_PASSWORD
+protocol=tcp
 EOF
 
+# Wait for MySQL to be ready
+max_tries=30
+counter=0
+until mysqladmin --defaults-file="$MYSQL_CNF" ping 2>/dev/null; do
+    counter=$((counter + 1))
+    if [ $counter -gt $max_tries ]; then
+        echo "Error: MySQL did not become ready in time"
+        exit 1
+    fi
+    echo "Waiting for MySQL to be ready... ($counter/$max_tries)"
+    sleep 2
+done
+
 # Creates Gzip MySQL dump file
-mysqldump --defaults-file="$MYSQL_CNF" "$MYSQL_DB_NAME" | gzip > $DUMP_FILE
+mysqldump --defaults-file="$MYSQL_CNF" --protocol=tcp "$MYSQL_DB_NAME" | gzip > $DUMP_FILE
 
 # Removes temporary config file
 rm "$MYSQL_CNF"
@@ -33,16 +50,13 @@ mkdir -p ~/.config/rclone
 
 # Defines rclone.conf content
 CONFIG_CONTENT=$(cat <<EOL
-[bucket-name]
+[remote]
 type = s3
-provider = AWS
+provider = Cloudflare
 access_key_id = $R2_ACCESS_KEY_ID
 secret_access_key = $R2_SECRET_ACCESS_KEY
-region = auto
 endpoint = $R2_S3_ENDPOINT
 acl = private
-location_constraint =auto
-server_side_encryption = AES256
 EOL
 )
 
@@ -58,10 +72,10 @@ else
 fi
 
 # Creates bucket if it doesn't exist
-rclone mkdir bucket-name:$R2_BUCKET
+rclone mkdir remote:$R2_BUCKET
 
 # Copies backup file to R2
-rclone copyto $DUMP_FILE bucket-name:$R2_BUCKET/$DUMP_FILE
+rclone copyto $DUMP_FILE remote:$R2_BUCKET/mysql-backup/$DUMP_FILE
 
 # Checks rclone exit status
 if [ $? -eq 0 ]; then
