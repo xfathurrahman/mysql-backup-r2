@@ -82,6 +82,7 @@ if [ $? -eq 0 ]; then
     echo "Backup file copied successfully to R2."
     # Cleans up local backup file
     rm $DUMP_FILE
+    exit 0
 else
     echo "Error: Failed to copy backup file to R2."
     exit 1
